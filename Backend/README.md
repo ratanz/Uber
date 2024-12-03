@@ -20,17 +20,12 @@ Register a new user in the system.
 ### Response
 
 #### Success Response
-- **Status Code**: 200 OK
-- **Content**: Returns the created user object (password field excluded)
+- **Status Code**: 201 Created
+- **Content**:
 ```json
 {
-    "fullname": {
-        "firstname": "string",
-        "lastname": "string"
-    },
-    "email": "string",
-    "_id": "string",
-    "socketId": "string"  // optional
+    "message": "User created successfully",
+    "token": "string"  // JWT authentication token
 }
 ```
 
@@ -76,3 +71,80 @@ Register a new user in the system.
   - Required
   - Minimum 6 characters
   - Stored securely using bcrypt hashing
+
+## Login User
+`POST /users/login`
+
+Authenticate an existing user and get an access token.
+
+### Request Body
+```json
+{
+    "email": "string",    // required, valid email format
+    "password": "string"  // required, min 6 characters
+}
+```
+
+### Response
+
+#### Success Response
+- **Status Code**: 200 OK
+- **Content**:
+```json
+{
+    "message": "Login successful",
+    "token": "string"  // JWT authentication token
+}
+```
+
+#### Error Responses
+
+##### Validation Error
+- **Status Code**: 400 Bad Request
+- **Conditions**:
+  - Invalid email format
+  - Password less than 6 characters
+  - Missing required fields
+- **Response Format**:
+```json
+{
+    "errors": [
+        {
+            "msg": "Error message",
+            "param": "field_name"
+        }
+    ]
+}
+```
+
+##### Authentication Failed
+- **Status Code**: 401 Unauthorized
+- **Condition**: When email doesn't exist or password is incorrect
+- **Content**:
+```json
+{
+    "message": "Invalid email or password"
+}
+```
+
+### Example Request
+```json
+{
+    "email": "john.doe@example.com",
+    "password": "securepassword123"
+}
+```
+
+### Data Validation Rules
+- **Email**:
+  - Required
+  - Must be a valid email format
+- **Password**:
+  - Required
+  - Minimum 6 characters
+
+### Security Features
+- Passwords are hashed using bcrypt with a salt round of 10
+- Password field is excluded from all query results
+- Input validation is performed using express-validator
+- Authentication uses JWT (JSON Web Tokens)
