@@ -148,3 +148,84 @@ Authenticate an existing user and get an access token.
 - Password field is excluded from all query results
 - Input validation is performed using express-validator
 - Authentication uses JWT (JSON Web Tokens)
+
+## Get User Profile
+`GET /users/profile`
+
+Retrieve the profile information of the currently authenticated user.
+
+### Headers
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+### Response
+
+#### Success Response
+- **Status Code**: 200 OK
+- **Content**:
+```json
+{
+    "fullname": {
+        "firstname": "string",
+        "lastname": "string"
+    },
+    "email": "string",
+    "_id": "string",
+    "socketId": "string"  // optional
+}
+```
+
+#### Error Responses
+
+##### Unauthorized
+- **Status Code**: 401 Unauthorized
+- **Conditions**:
+  - No token provided
+  - Invalid token
+  - Expired token
+- **Content**:
+```json
+{
+    "message": "Unauthorized access"
+}
+```
+
+## Logout User
+`GET /users/logout`
+
+Logout the currently authenticated user.
+
+### Headers
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+### Response
+
+#### Success Response
+- **Status Code**: 200 OK
+- **Content**:
+```json
+{
+    "message": "Logged out successfully"
+}
+```
+
+#### Error Responses
+
+##### Unauthorized
+- **Status Code**: 401 Unauthorized
+- **Conditions**:
+  - No token provided
+  - Invalid token
+  - Expired token
+- **Content**:
+```json
+{
+    "message": "Unauthorized access"
+}
+```
+
+### Authentication Note
+Both `/users/profile` and `/users/logout` endpoints require authentication using JWT token. The token must be included in the request headers using the Bearer token format.
