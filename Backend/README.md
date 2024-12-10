@@ -306,3 +306,153 @@ All endpoints follow a consistent error response format:
     ]
 }
 ```
+
+# Captain API Documentation
+
+## API Base URL
+All captain endpoints are prefixed with `/captains`
+
+## Register Captain
+`POST /captains/register`
+
+Register a new captain in the system.
+
+### Request Body
+```json
+{
+    "fullname": {
+        "firstname": "string",  // required, min 3 characters
+        "lastname": "string"    // optional
+    },
+    "email": "string",         // required, valid email format
+    "password": "string",      // required, min 6 characters
+    "vehicle": {
+        "color": "string",     // required, min 3 characters
+        "plate": "string",     // required, min 3 characters
+        "capacity": "number",   // required, min 1
+        "vehicleType": "string" // required, enum: ['car', 'motorcycle', 'auto']
+    }
+}
+```
+
+### Response
+
+#### Success Response
+- **Status Code**: 201 Created
+- **Content**:
+```json
+{
+    "message": "Captain registered successfully",
+    "captain": {
+        "fullname": {
+            "firstname": "string",
+            "lastname": "string"
+        },
+        "email": "string",
+        "vehicle": {
+            "color": "string",
+            "plate": "string",
+            "capacity": "number",
+            "vehicleType": "string"
+        },
+        "_id": "string"
+    }
+}
+```
+
+#### Error Responses
+
+##### Validation Error
+- **Status Code**: 400 Bad Request
+- **Conditions**:
+  - First name is empty
+  - Invalid email format
+  - Password less than 6 characters
+  - Vehicle color less than 3 characters
+  - Vehicle plate less than 3 characters
+  - Vehicle capacity less than 1
+  - Invalid vehicle type
+  - Missing required fields
+- **Response Format**:
+```json
+{
+    "errors": [
+        {
+            "msg": "Error message",
+            "param": "field_name",
+            "value": "provided_value"
+        }
+    ]
+}
+```
+
+##### Email Already Exists
+- **Status Code**: 409 Conflict
+- **Condition**: When the provided email is already registered
+- **Content**:
+```json
+{
+    "message": "Email already registered"
+}
+```
+
+### Example Request
+```json
+{
+    "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+    },
+    "email": "john.captain@example.com",
+    "password": "securepass123",
+    "vehicle": {
+        "color": "Black",
+        "plate": "ABC123",
+        "capacity": 4,
+        "vehicleType": "car"
+    }
+}
+```
+
+### Data Validation Rules
+- **First Name**: 
+  - Required
+  - Non-empty string
+  - String type
+- **Last Name**:
+  - Optional
+  - String type
+- **Email**:
+  - Required
+  - Must be a valid email format
+  - Must be unique in the system
+  - String type
+- **Password**:
+  - Required
+  - Minimum 6 characters
+  - String type
+  - Stored securely using bcrypt hashing
+- **Vehicle Color**:
+  - Required
+  - Minimum 3 characters
+  - String type
+- **Vehicle Plate**:
+  - Required
+  - Minimum 3 characters
+  - String type
+- **Vehicle Capacity**:
+  - Required
+  - Integer type
+  - Minimum value: 1
+- **Vehicle Type**:
+  - Required
+  - Must be one of: ['car', 'motorcycle', 'auto']
+  - String type
+
+### Security Features
+All security features from the User API apply to Captain API as well:
+- Password hashing with bcrypt
+- Input validation using express-validator
+- Protection against common attacks
+- Rate limiting
+- Token-based authentication
