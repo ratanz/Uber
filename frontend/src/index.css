@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .input-focus {
+    @apply focus-within:border-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500;
+  }
+}
