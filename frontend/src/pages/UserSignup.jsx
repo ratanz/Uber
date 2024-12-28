@@ -17,30 +17,37 @@ const UserSignup = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault()
-    const newUser = {
-      fullname: {
-        firstname: firstName,
-        lastname: lastName,
-      },
-      email: email,
-      password: password,
+    try {
+        const newUser = {
+            fullname: {
+                firstname: firstName,
+                lastname: lastName,
+            },
+            email: email,
+            password: password,
+        };
+
+        const response = await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/users/register`, 
+            newUser,
+            {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (response.status === 201) {
+            const data = response.data;
+            setUser(data.user);
+            localStorage.setItem('token', data.token);
+            navigate('/home');
+        }
+    } catch (error) {
+        console.error("Registration error:", error.response?.data || error.message);
+        // Handle error appropriately
     }
-
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`, newUser)
-
-    if (response.status === 201) {
-      const data = response.data
-      setUser(data.user)
-      localStorage.setItem('token', data.token)
-      navigate('/home')
-    }
-
-    console.log(userData)
-    setEmail("")
-    setPassword("")
-    setFirstName("")
-    setLastName("")
-
   }
 
 

@@ -11,9 +11,12 @@ const captainRoutes = require("./routes/captain.routes");
 
 connectToDb();
 
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
 app.use(express.json());
-app.use(express.urlencoded({extended : true}));
+app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 app.get('/', (req, res) => {
     res.send("Hello Pookie");

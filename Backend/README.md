@@ -456,3 +456,199 @@ All security features from the User API apply to Captain API as well:
 - Protection against common attacks
 - Rate limiting
 - Token-based authentication
+
+## Login Captain
+`POST /captain/login`
+
+Authenticate an existing captain and get an access token.
+
+### Request Body
+```json
+{
+    "email": "string",    // required, valid email format
+    "password": "string"  // required, min 6 characters
+}
+```
+
+### Response
+
+#### Success Response
+- **Status Code**: 200 OK
+- **Content**:
+```json
+{
+    "message": "Login successful",
+    "token": "string",  // JWT authentication token
+    "captain": {
+        "fullname": {
+            "firstname": "string",
+            "lastname": "string"
+        },
+        "email": "string",
+        "vehicle": {
+            "color": "string",
+            "plate": "string",
+            "capacity": "number",
+            "vehicleType": "string"
+        },
+        "_id": "string"
+    }
+}
+```
+
+#### Error Responses
+
+##### Validation Error
+- **Status Code**: 400 Bad Request
+- **Conditions**:
+  - Invalid email format
+  - Password less than 6 characters
+  - Missing required fields
+- **Response Format**:
+```json
+{
+    "errors": [
+        {
+            "msg": "Error message",
+            "param": "field_name",
+            "value": "provided_value"
+        }
+    ]
+}
+```
+
+##### Authentication Failed
+- **Status Code**: 401 Unauthorized
+- **Condition**: When email doesn't exist or password is incorrect
+- **Content**:
+```json
+{
+    "message": "Invalid email or password"
+}
+```
+
+## Get Captain Profile
+`GET /captain/profile`
+
+Retrieve the profile information of the currently authenticated captain.
+
+### Headers
+```
+Authorization: Bearer <JWT_TOKEN>  // Required
+```
+
+### Response
+
+#### Success Response
+- **Status Code**: 200 OK
+- **Content**:
+```json
+{
+    "captain": {
+        "fullname": {
+            "firstname": "string",
+            "lastname": "string"
+        },
+        "email": "string",
+        "vehicle": {
+            "color": "string",
+            "plate": "string",
+            "capacity": "number",
+            "vehicleType": "string"
+        },
+        "_id": "string"
+    }
+}
+```
+
+#### Error Responses
+
+##### Unauthorized
+- **Status Code**: 401 Unauthorized
+- **Conditions**:
+  - No token provided
+  - Invalid token
+  - Expired token
+  - Malformed token
+- **Content**:
+```json
+{
+    "message": "Unauthorized access"
+}
+```
+
+##### Server Error
+- **Status Code**: 500 Internal Server Error
+- **Content**:
+```json
+{
+    "message": "Error fetching captain profile"
+}
+```
+
+## Logout Captain
+`GET /captain/logout`
+
+Logout the currently authenticated captain and invalidate the token.
+
+### Headers
+```
+Authorization: Bearer <JWT_TOKEN>  // Required
+```
+
+### Response
+
+#### Success Response
+- **Status Code**: 200 OK
+- **Content**:
+```json
+{
+    "message": "Logged out successfully"
+}
+```
+
+#### Error Responses
+
+##### Unauthorized
+- **Status Code**: 401 Unauthorized
+- **Conditions**:
+  - No token provided
+  - Invalid token
+  - Expired token
+  - Token already invalidated
+- **Content**:
+```json
+{
+    "message": "Unauthorized access"
+}
+```
+
+##### Server Error
+- **Status Code**: 500 Internal Server Error
+- **Content**:
+```json
+{
+    "message": "Error during logout"
+}
+```
+
+## Captain Authentication Note
+- All authenticated captain endpoints require a valid JWT token
+- Token is obtained from login or register response
+- Token must be included in the Authorization header
+- Token format: `Bearer <token>`
+- Invalid or expired tokens will result in 401 Unauthorized responses
+
+## Captain-specific Validation Rules
+- **Vehicle Details**:
+  - All vehicle information is required during registration
+  - Vehicle type must be one of: ['car', 'motorcycle', 'auto']
+  - Vehicle capacity must be a positive number
+  - Vehicle plate must be unique in the system
+  - Color and plate must be at least 3 characters long
+
+## Captain API Security
+- All security features from the User API apply
+- Additional validation for vehicle-related data
+- Vehicle plate uniqueness check
+- Role-based access control for captain-specific endpoints
