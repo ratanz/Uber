@@ -5,19 +5,16 @@ import { useNavigate } from "react-router-dom"
 import axios from 'axios'
 
 const UserLogin = () => {
-
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [userData, setUserData] = useState({})
-
-    const { user, setUser } = useContext(UserDataContext)
+    const { setUser } = useContext(UserDataContext)
     const navigate = useNavigate()
 
 
     const submitHandler = async (e) => {
         e.preventDefault()
   
-        const useData = {
+        const userData = {
             email: email,   
             password: password
         }
@@ -54,7 +51,7 @@ const UserLogin = () => {
 
                     <input type="password"
                         required
-                        value={password}  
+                        value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="bg-[#eeeeee] mb-7 rounded px-2 py-2 border w-full text-lg placeholder:text-base"
                         placeholder="Enter your password" />
