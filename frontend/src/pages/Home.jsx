@@ -12,6 +12,9 @@ const Home = () => {
 
   const panelRef = useRef(null)
   const panelCloseRef = useRef(null)
+  const vehiclePanelRef = useRef(null)
+
+  const [vehiclePanel, setVehiclePanel] = useState(false)
 
   const submitHandler = (e) => {
     e.preventDefault()
@@ -40,6 +43,23 @@ const Home = () => {
       })
     }
   }, [panelOpen, panelCloseRef])
+
+  useGSAP(() => {
+    if(vehiclePanel) {
+    gsap.to(vehiclePanelRef.current, {
+      transform: 'translateY(0)',
+      duration: 0.5,
+      ease: 'power2.out',
+      scrub: 1,
+    }) 
+  } else {
+    gsap.to(vehiclePanelRef.current, {
+      transform: 'translateY(100%)',
+      duration: 0.5,
+      ease: 'power2.out',
+    })
+  }
+  },[vehiclePanel])
 
 
   return (
@@ -90,11 +110,11 @@ const Home = () => {
         <div
           ref={panelRef}
           className='h-0 bg-white  '>
-          <LocationSearchPanel />
+          <LocationSearchPanel  vehiclePanel={vehiclePanel} setVehiclePanel={setVehiclePanel} />
         </div>
       </div>
 
-      <div className='fixed z-10 w-full bottom-0 translate-y-full px-3 py-8 bg-white'>
+      <div ref={vehiclePanelRef} className='fixed z-10 w-full bottom-0 translate-y-full px-3 py-8 bg-white'>
         <h2 className='text-2xl font-bold mb-5'>Choose a Vehicle</h2>
 
         <div className='flex border-4 mb-4 active:border-black rounded-xl w-full p-3 items-center justify-between '>

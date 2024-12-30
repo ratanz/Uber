@@ -1,7 +1,7 @@
 import React from 'react'
 import 'remixicon/fonts/remixicon.css'
 
-const LocationSearchPanel = () => {
+const LocationSearchPanel = (props) => {
 
   // sample array of locations
   const locations = [
@@ -19,7 +19,9 @@ const LocationSearchPanel = () => {
       {
         locations.map((location, index) => {
           return (
-            <div className='flex items-center justify-start p-3 border-2 border-gray-50 active:border-black rounded-xl  gap-4 my-2' key={index}>
+            <div onClick={() => {
+              props.setVehiclePanel(true)
+            }} className='flex items-center justify-start p-3 border-2 border-gray-50 active:border-black rounded-xl  gap-4 my-2' key={index}>
               <h2><i className=" bg-[#eee] rounded-full h-10 w-10 flex items-center justify-center ri-map-pin-2-fill"></i></h2>
               <h4 className='font-medium'>{location}</h4>
             </div>
