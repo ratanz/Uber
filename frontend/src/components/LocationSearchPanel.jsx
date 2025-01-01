@@ -5,7 +5,7 @@ const LocationSearchPanel = (props) => {
 
   // sample array of locations
   const locations = [
-    "24B, Near Purva's cafe, Pune, Pimpri Chinchwad",
+    "24B,Purva's cafe, Pune, Pimpri Chinchwad",
     "123 Main Street, Downtown Area, Mumbai, Maharashtra",
     "456 Park Avenue, Koregaon Park, Pune, Maharashtra",
     "789 MG Road, Near City Mall, Bangalore, Karnataka",
@@ -21,6 +21,7 @@ const LocationSearchPanel = (props) => {
           return (
             <div onClick={() => {
               props.setVehiclePanel(true)
+              props.setPanelOpen(false)
             }} className='flex items-center justify-start p-3 border-2 border-gray-50 active:border-black rounded-xl  gap-4 my-2' key={index}>
               <h2><i className=" bg-[#eee] rounded-full h-10 w-10 flex items-center justify-center ri-map-pin-2-fill"></i></h2>
               <h4 className='font-medium'>{location}</h4>
