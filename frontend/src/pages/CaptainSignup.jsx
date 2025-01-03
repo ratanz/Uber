@@ -18,12 +18,19 @@ const CaptainSignup = () => {
   const [ vehicleCapacity, setVehicleCapacity ] = useState('')
   const [ vehicleType, setVehicleType ] = useState('')
 
+  const [errors, setErrors] = useState({
+    form: "",
+    email: "",
+    password: "",
+    vehicle: ""
+  })
 
   const { captain, setCaptain } = React.useContext(CaptainDataContext)
 
-
   const submitHandler = async (e) => {
     e.preventDefault()
+    setErrors({ form: "", email: "", password: "", vehicle: "" }) // Clear previous errors
+    
     const captainData = {
       fullname: {
         firstname: firstName,
@@ -59,7 +66,25 @@ const CaptainSignup = () => {
         }
     } catch (error) {
         console.error("Registration error:", error.response?.data || error.message)
-        // Add error state handling here if needed
+        
+        if (error.response?.data?.errors) {
+            // Handle validation errors
+            const validationErrors = error.response.data.errors
+            const newErrors = { form: "", email: "", password: "", vehicle: "" }
+            
+            validationErrors.forEach(err => {
+                if (err.param.includes('email')) newErrors.email = err.msg
+                else if (err.param.includes('password')) newErrors.password = err.msg
+                else if (err.param.includes('vehicle')) newErrors.vehicle = err.msg
+            })
+            
+            setErrors(newErrors)
+        } else {
+            setErrors({
+                ...errors,
+                form: error.response?.data?.message || "Registration failed. Please try again."
+            })
+        }
     }
 
     setEmail('')
@@ -70,16 +95,19 @@ const CaptainSignup = () => {
     setVehiclePlate('')
     setVehicleCapacity('')
     setVehicleType('')
-
   }
   return (
     <div className='py-5 px-5 h-screen flex flex-col justify-between'>
       <div>
         <img className='w-20 mb-3' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="" />
 
-        <form onSubmit={(e) => {
-          submitHandler(e)
-        }}>
+        {errors.form && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span className="block sm:inline">{errors.form}</span>
+          </div>
+        )}
+
+        <form onSubmit={submitHandler}>
 
           <h3 className='text-lg w-full  font-medium mb-2'>What's our Captain's name</h3>
           <div className='flex gap-4 mb-7'>
@@ -177,6 +205,18 @@ const CaptainSignup = () => {
               <option value="moto">Moto</option>
             </select>
           </div>
+
+          {errors.email && (
+            <p className="text-red-500 text-sm mb-2">{errors.email}</p>
+          )}
+          
+          {errors.password && (
+            <p className="text-red-500 text-sm mb-2">{errors.password}</p>
+          )}
+          
+          {errors.vehicle && (
+            <p className="text-red-500 text-sm mb-2">{errors.vehicle}</p>
+          )}
 
           <button
             className='bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'

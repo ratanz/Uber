@@ -9,12 +9,15 @@ const Captainlogin = () => {
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
 
     const { captain, setCaptain } = React.useContext(CaptainDataContext)
     const navigate = useNavigate()
 
     const submitHandler = async (e) => {
         e.preventDefault()
+        setError("") // Clear previous errors
+        
         try {
             const response = await axios.post(
                 `${import.meta.env.VITE_BASE_URL}/captains/login`, 
@@ -38,7 +41,7 @@ const Captainlogin = () => {
             }
         } catch (error) {
             console.error("Login error:", error.response?.data || error.message)
-            // Add error state handling here if needed
+            setError(error.response?.data?.message || "Login failed. Please try again.")
         }
 
         setEmail("")
@@ -50,6 +53,12 @@ const Captainlogin = () => {
         <div className="p-7 h-screen flex flex-col justify-between  ">
             <div>
                 <img src="https://www.svgrepo.com/show/505031/uber-driver.svg " alt="Uber logo" className='w-20 mb-2 ' />
+
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <span className="block sm:inline">{error}</span>
+                    </div>
+                )}
 
                 <form action="" onSubmit={(e) => submitHandler(e)}>
                     <h3 className="text-lg font-medium mb-2"> What&apos;s your email?</h3>
