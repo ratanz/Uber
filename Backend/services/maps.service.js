@@ -57,7 +57,8 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     try {
         const response = await axios.get(url);
         if (response.data.status === 'OK') {
-            return response.data.predictions.map(prediction => prediction.description).filter(value => value);
+            const suggestions = response.data.predictions.map(prediction => prediction.description).filter(value => value);
+            return { suggestions };
         } else {
             throw new Error('Unable to fetch suggestions');
         }
