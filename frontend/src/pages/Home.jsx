@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useContext, useEffect } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import axios from 'axios'
@@ -8,6 +8,8 @@ import VehiclePanel from '../components/VehiclePanel'
 import ConfirmRide from '../components/ConfirmRide'
 import LookingForDriver from '../components/LookingForDriver'
 import WaitingForDriver from '../components/WaitingForDriver'
+import { SocketContext } from '../context/SocketContext'
+import { UserDataContext } from '../context/UserContext'
 
 const Home = () => {
 
@@ -30,6 +32,15 @@ const Home = () => {
   const vehicleFoundRef = useRef(null)
   const waitingForDriverRef = useRef(null)
 
+  // socket connection
+  const { socket } = useContext(SocketContext)
+  const { user } = useContext(UserDataContext)
+
+  useEffect(() => {
+    socket.emit('join', { userType: 'user', userId: user._id })
+  }, [user])
+
+  
   const fetchSuggestions = async (query, type) => {
     try {
       if (!query) return;
@@ -311,32 +322,32 @@ const Home = () => {
       </div>
 
       <div ref={vehiclePanelRef} className='fixed z-10 w-full bottom-0 translate-y-full px-3 py-10 pt-12 bg-white'>
-        <VehiclePanel 
-        selectVehicle={setVehicleType}
-        fare={fare} setVehiclePanel={setVehiclePanel} setConfirmRidePanel={setConfirmRidePanel} />
+        <VehiclePanel
+          selectVehicle={setVehicleType}
+          fare={fare} setVehiclePanel={setVehiclePanel} setConfirmRidePanel={setConfirmRidePanel} />
       </div>
 
       <div ref={confirmRidePanelRef} className='fixed z-10 w-full bottom-0 translate-y-full px-3 py-6 pt-12 bg-white'>
-        <ConfirmRide 
+        <ConfirmRide
           createRide={createRide}
           pickup={pickup}
           destination={destination}
           vehicleType={vehicleType}
           fare={fare}
-          setConfirmRidePanel={setConfirmRidePanel} 
-          setVehicleFound={setVehicleFound} 
+          setConfirmRidePanel={setConfirmRidePanel}
+          setVehicleFound={setVehicleFound}
         />
       </div>
 
       <div ref={vehicleFoundRef}
         className='fixed z-10 w-full bottom-0 translate-y-full px-3 py-6 pt-12 bg-white'>
-        <LookingForDriver 
-         createRide={createRide}
-         pickup={pickup}
-         destination={destination}
-         vehicleType={vehicleType}
-         fare={fare}
-        setVehicleFound={setVehicleFound} />
+        <LookingForDriver
+          createRide={createRide}
+          pickup={pickup}
+          destination={destination}
+          vehicleType={vehicleType}
+          fare={fare}
+          setVehicleFound={setVehicleFound} />
       </div>
 
       <div ref={waitingForDriverRef}
