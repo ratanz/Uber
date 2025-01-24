@@ -10,6 +10,9 @@ import LookingForDriver from '../components/LookingForDriver'
 import WaitingForDriver from '../components/WaitingForDriver'
 import { SocketContext } from '../context/SocketContext'
 import { UserDataContext } from '../context/UserContext'
+import { useNavigate } from 'react-router-dom'
+import LiveTracking from '../components/LiveTracking'
+
 
 const Home = () => {
 
@@ -24,6 +27,8 @@ const Home = () => {
   const [waitingForDriver, setWaitingForDriver] = useState(false)
   const [fare, setFare] = useState({})
   const [vehicleType, setVehicleType] = useState(null)
+  const [ride, setRide] = useState(null)
+  const navigate = useNavigate()
 
   const panelRef = useRef(null)
   const panelCloseRef = useRef(null)
@@ -40,7 +45,19 @@ const Home = () => {
     socket.emit('join', { userType: 'user', userId: user._id })
   }, [user])
 
-  
+  socket.on('ride-confirmed', ride => {
+    setVehicleFound(false)
+    setWaitingForDriver(true)
+    setRide(ride)
+  })
+
+  socket.on('ride-started', ride => {
+    console.log(ride)
+    setWaitingForDriver(false)
+    navigate('/riding', { state: { ride } })
+  })
+
+
   const fetchSuggestions = async (query, type) => {
     try {
       if (!query) return;
@@ -206,39 +223,16 @@ const Home = () => {
   }, [waitingForDriver])
 
   async function findTrip() {
-    try {
-      if (!pickup || !destination) {
-        alert('Please select both pickup and destination locations');
-        return;
+    setVehiclePanel(true)
+    setPanelOpen(false)
+
+    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, {
+      params: { pickup, destination },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Please login to continue');
-        return;
-      }
-
-      setVehiclePanel(true);
-      setPanelOpen(false);
-
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, {
-        params: {
-          pickup,
-          destination
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.data) {
-        setFare(response.data);
-      }
-    } catch (error) {
-      setVehiclePanel(false);
-      alert('Error fetching fare. Please try again.');
-    }
+    })
+    setFare(response.data)
   }
 
   async function createRide() {
@@ -251,25 +245,22 @@ const Home = () => {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     })
-    console.log(response)
+
+
   }
+
 
   return (
     <div className='h-screen relative overflow-hidden'>
 
-      <img className='w-16 absolute top-10 left-10' src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Uber_logo_2018.png/1200px-Uber_logo_2018.png" alt="" />
+      <img className='w-16 absolute top-10 left-10 z-10' src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Uber_logo_2018.png/1200px-Uber_logo_2018.png" alt="" />
 
-      <div onClick={() => {
-        setPanelOpen(false)
-        setVehiclePanel(false)
-      }} className='h-screen w-screen'>
-        {/* temp image */}
-        <img className='h-full w-full object-cover' src="https://simonpan.com/wp-content/themes/sp_portfolio/assets/uber-challenge.jpg" alt="" />
+      <div className='h-screen w-screen absolute top-0 left-0'>
+        <LiveTracking />
       </div>
 
-      <div className=' flex flex-col justify-end h-screen absolute top-0 w-full'>
-
-        <div className='h-[30%] p-5 bg-white relative'>
+      <div className='flex flex-col justify-end h-screen absolute top-0 w-full pointer-events-auto'>
+        <div className='lg:h-[35%] h-[30%] p-5 bg-white relative pointer-events-auto z-10'>
           <h5
             ref={panelCloseRef}
             onClick={() => setPanelOpen(!panelOpen)}
@@ -324,7 +315,9 @@ const Home = () => {
       <div ref={vehiclePanelRef} className='fixed z-10 w-full bottom-0 translate-y-full px-3 py-10 pt-12 bg-white'>
         <VehiclePanel
           selectVehicle={setVehicleType}
-          fare={fare} setVehiclePanel={setVehiclePanel} setConfirmRidePanel={setConfirmRidePanel} />
+          fare={fare}
+          setConfirmRidePanel={setConfirmRidePanel}
+          setVehiclePanel={setVehiclePanel} />
       </div>
 
       <div ref={confirmRidePanelRef} className='fixed z-10 w-full bottom-0 translate-y-full px-3 py-6 pt-12 bg-white'>
@@ -352,7 +345,11 @@ const Home = () => {
 
       <div ref={waitingForDriverRef}
         className='fixed z-10 w-full bottom-0 translate-y-full px-3 py-6 pt-12 bg-white'>
-        <WaitingForDriver waitingForDriver={waitingForDriver} />
+        <WaitingForDriver
+          ride={ride}
+          setVehicleFound={setVehicleFound}
+          setWaitingForDriver={setWaitingForDriver}
+          waitingForDriver={waitingForDriver} />
       </div>
 
     </div>
